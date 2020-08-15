@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="matchItem"
+            type="com.example.cidemo.model.MatchItem"/>
+    </data>
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:alignContent="stretch"
+        app:alignItems="center"
+        app:justifyContent="flex_start"
+        app:flexDirection="row"
+        app:flexWrap="wrap">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_soccer_cup"/>
+
+        <TextView
+            android:id="@+id/match_title"
+            android:text="@{matchItem.title}"
+            android:paddingTop="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:textSize="15sp"
+            android:textColor="@color/colorMatchList"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </com.google.android.flexbox.FlexboxLayout>
+
+</layout>
