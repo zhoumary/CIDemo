@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name">CI Demo</string>
+    <string name="app_title">Challenge Insights</string>
+    <string name="match_download">Download matches</string>
+    <string name="dialog_login">Login</string>
+    <string name="download_url">URL: </string>
+    <string name="download_username">User Name: </string>
+    <string name="download_password">Password: </string>
+    <string name="login_cancel">Cancel</string>
+    <string name="login_login">Login</string>
     <string name="feed_api_url">https://www.toutiao.com/api/pc/feed/</string>
     <string name="news_url_prefix">https://www.toutiao.com/a</string>
 </resources>

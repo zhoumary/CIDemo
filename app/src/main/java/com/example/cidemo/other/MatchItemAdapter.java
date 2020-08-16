@@ -1,6 +1,5 @@
 package com.example.cidemo.other;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;

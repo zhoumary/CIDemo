@@ -7,7 +7,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.example.cidemo.R;
 import com.example.cidemo.databinding.ActivityMainBinding;
@@ -27,6 +29,10 @@ public class MainActivity extends AppCompatActivity {
 
     public MatchItemAdapter mMatchItemAdapter;
     public List<MatchItem> mMatchList = new ArrayList<>();
+
+    public LoginDialog loginDialog;
+    public TextView urlName;
+    public TextView userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,5 +55,23 @@ public class MainActivity extends AppCompatActivity {
 
         // 加载数据
         mViewModel.loadMatches();
+
+        // 展示url和user name
+        urlName = (TextView) findViewById(R.id.match_url);
+        userName = (TextView) findViewById(R.id.match_username);
+    }
+
+    public void onOpenDownloadDialog(View view) {
+        loginDialog = new LoginDialog();
+        loginDialog.show(getSupportFragmentManager(), "login dialog");
+    }
+
+    public void onCancelLoginDialog(View view) {
+        loginDialog.dismiss();
+    }
+
+    public void onLoginLoginDialog(View view) {
+        urlName.setText(loginDialog.url);
+        userName.setText(loginDialog.userName);
     }
 }
