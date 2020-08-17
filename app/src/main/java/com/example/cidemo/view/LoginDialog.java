@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -17,6 +18,7 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 
 import com.example.cidemo.R;
 import com.example.cidemo.databinding.ActivityMainBinding;
+import com.example.cidemo.other.DatabaseHelper;
 import com.example.cidemo.viewmodel.LoginDialogViewModel;
 
 public class LoginDialog extends AppCompatDialogFragment {
@@ -27,10 +29,21 @@ public class LoginDialog extends AppCompatDialogFragment {
 
     private EditText editTextUrl;
     public String url;
+    private String defaultUrl;
     private EditText editTextUserName;
     public String userName;
+    private String defaulUserName;
     private EditText editTextPassword;
-    private String password;
+    public String password;
+    private String defaulPassword;
+    private Boolean isFirstOpen;
+
+    public LoginDialog(String urlStr, String usernameStr, String passwordStr) {
+        defaultUrl = urlStr;
+        defaulUserName = usernameStr;
+        defaulPassword = passwordStr;
+        isFirstOpen = true;
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -92,6 +105,14 @@ public class LoginDialog extends AppCompatDialogFragment {
                 password = editTextPassword != null ? editTextPassword.getText().toString() : "";
             }
         });
+
+
+        if (isFirstOpen) {
+            editTextUrl.setText(defaultUrl);
+            editTextUserName.setText(defaulUserName);
+            editTextPassword.setText(defaulPassword);
+            isFirstOpen = false;
+        }
 
         return builder.create();
     }

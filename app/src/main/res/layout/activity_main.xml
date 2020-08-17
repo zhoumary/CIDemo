@@ -55,28 +55,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <TextView
-            android:id="@+id/match_url"
-            android:text="url"
-            android:paddingTop="5dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textSize="15sp"
-            android:textColor="@color/colorDownloadMatch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:id="@+id/match_username"
-            android:text="user name"
-            android:paddingTop="5dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textSize="15sp"
-            android:textColor="@color/colorDownloadMatch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
     </com.google.android.flexbox.FlexboxLayout>
 
 </layout>
