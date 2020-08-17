@@ -8,31 +8,33 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.cidemo.R;
 import com.example.cidemo.databinding.ActivityMainBinding;
-import com.example.cidemo.model.Login;
 import com.example.cidemo.model.MatchItem;
+import com.example.cidemo.other.BasicAuthInterceptor;
 import com.example.cidemo.other.DatabaseHelper;
 import com.example.cidemo.other.MatchItemAdapter;
 import com.example.cidemo.viewmodel.MainViewModel;
-import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,6 +53,10 @@ public class MainActivity extends AppCompatActivity {
 
     JSONObject lastLoginItem;
     JSONArray jsonArray;
+
+    private OkHttpClient client;
+
+    public MatchListDialog matchListDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,8 +114,42 @@ public class MainActivity extends AppCompatActivity {
         // add login data into the SQLite
         AddData(loginDialog.url, loginDialog.userName, loginDialog.password);
 
-        // 根据URL登录对应S1系统
-        
+        // 根据URL登录对应S1系统, 首先需要获取x-csrf-token，然后再post登录数据
+        client = new OkHttpClient.Builder()
+                .addInterceptor(new BasicAuthInterceptor(loginDialog.userName, loginDialog.password))
+                .build();
+
+        Request request = new Request.Builder()
+                .url(loginDialog.url + "/sap/hana/xs/formLogin/token.xsjs")
+                .addHeader("x-csrf-token", "fetch")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String mResponse = response.body().string();
+                    if (mResponse == "") {
+                        String csrfToken = response.headers().get("x-csrf-token");
+                        Log.i("TOKEN" ,csrfToken);
+                    }
+                }
+            }
+        });
+
+        // 如果登录成功则跳转至比赛列表加载页面，仍然是一个Dialog
+
+
+    }
+
+    public void onOpenMatchListDialog(View view) {
+        matchListDialog = new MatchListDialog();
+//        matchListDialog.show(getSupportFragmentManager(), "match list dialog");
     }
 
     // 添加登陆数据到SQLite

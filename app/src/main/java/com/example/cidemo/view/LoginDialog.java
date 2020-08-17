@@ -32,16 +32,16 @@ public class LoginDialog extends AppCompatDialogFragment {
     private String defaultUrl;
     private EditText editTextUserName;
     public String userName;
-    private String defaulUserName;
+    private String defaultUserName;
     private EditText editTextPassword;
     public String password;
-    private String defaulPassword;
+    private String defaultPassword;
     private Boolean isFirstOpen;
 
     public LoginDialog(String urlStr, String usernameStr, String passwordStr) {
         defaultUrl = urlStr;
-        defaulUserName = usernameStr;
-        defaulPassword = passwordStr;
+        defaultUserName = usernameStr;
+        defaultPassword = passwordStr;
         isFirstOpen = true;
     }
 
@@ -109,8 +109,8 @@ public class LoginDialog extends AppCompatDialogFragment {
 
         if (isFirstOpen) {
             editTextUrl.setText(defaultUrl);
-            editTextUserName.setText(defaulUserName);
-            editTextPassword.setText(defaulPassword);
+            editTextUserName.setText(defaultUserName);
+            editTextPassword.setText(defaultPassword);
             isFirstOpen = false;
         }
 
