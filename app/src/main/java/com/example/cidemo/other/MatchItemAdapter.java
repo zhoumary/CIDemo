@@ -14,13 +14,13 @@ import com.example.cidemo.R;
 import com.example.cidemo.databinding.ItemMatchBinding;
 import com.example.cidemo.model.MatchItem;
 import com.example.cidemo.view.MainActivity;
+import com.example.cidemo.view.MainMatchActivity;
 
 import java.util.List;
 
 public class MatchItemAdapter extends RecyclerView.Adapter {
     private Context mContext;
     private List<MatchItem> matchList;
-    private OnItemClickListener mOnItemClickListener = null;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ItemMatchBinding mItemMatchBinding;
@@ -51,30 +51,11 @@ public class MatchItemAdapter extends RecyclerView.Adapter {
         // dataBinding绑定
         MatchItem matchItem = matchList.get(position);
         mViewHolder.mItemMatchBinding.setMatchItem(matchItem);
-        // 设置点击事件，将接口方法回调给MainActivity
-        if (mOnItemClickListener != null) {
-            mViewHolder.mItemMatchBinding.getRoot().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mOnItemClickListener.onShortClick(position);
-                }
-            });
-            mViewHolder.mItemMatchBinding.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    mOnItemClickListener.onLongClick(position);
-                    return false;
-                }
-            });
-        }
-        // 直接在adapter里设置点击事件
+        // 直接在adapter里设置点击事件, 跳转至比赛详情页面
         mViewHolder.mItemMatchBinding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String newsUrlPrefix = mContext.getResources().getString(R.string.news_url_prefix);
-                String httpUrl = newsUrlPrefix + matchList.get(position).getItem_id();
-                Intent intent = new Intent(mContext, MainActivity.class);
-                intent.putExtra("httpUrl", httpUrl);
+                Intent intent = new Intent(mContext, MainMatchActivity.class);
                 mContext.startActivity(intent);
             }
         });
@@ -89,15 +70,5 @@ public class MatchItemAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemCount() {
         return matchList.size();
-    }
-
-    // 定义点击事件的接口
-    public interface OnItemClickListener {
-        void onShortClick(int position); // 单击
-        void onLongClick(int position); // 长按
-    }
-
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.mOnItemClickListener = onItemClickListener;
     }
 }

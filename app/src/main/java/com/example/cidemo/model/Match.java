@@ -1,5 +1,8 @@
 package com.example.cidemo.model;
 
+import android.database.Cursor;
+
+import com.example.cidemo.other.DatabaseHelper;
 import com.example.cidemo.other.IMatch;
 import com.example.cidemo.other.LoadListener;
 
@@ -43,31 +46,22 @@ public class Match {
     }
 
     // 通过传进来的url，利用retrofit获取网络数据，回调给viewModel
-    public void loadData(String feedUrl, final LoadListener<MatchItem> loadListener) {
-        OkHttpClient okHttpClient = new OkHttpClient();
-        Retrofit retrofit = new Retrofit.Builder()
-                .client(okHttpClient)
-                .baseUrl(feedUrl)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        IMatch iMatch = retrofit.create(IMatch.class);
-        Call<Match> match = iMatch.getMatch();
-        match.enqueue(new Callback<Match>() {
-            @Override
-            public void onResponse(Call<Match> call, Response<Match> response) {
-                // 获取成功
-                List<MatchItem> matchesList = new ArrayList<>();
-                for (int i = 0; i < response.body().getData().size(); i++) {
-                    matchesList.add(response.body().getData().get(i));
-                }
-                loadListener.loadSuccess(matchesList);
-            }
+    public void loadData(DatabaseHelper mDatabaseHelper, final LoadListener<MatchItem> loadListener) {
+        // get downloaded match data from "match_table"
+        Cursor matchCursor = mDatabaseHelper.getMatchData();
 
-            @Override
-            public void onFailure(Call<Match> call, Throwable t) {
-                // 获取失败
-                loadListener.loadFailure(t.getMessage());
+        if (matchCursor != null) {
+            List<MatchItem> matchesList = new ArrayList<>();
+            while (matchCursor.moveToNext()) {
+                String matchID = matchCursor.getString(1);
+                String matchName = matchCursor.getString(2);
+                String matchScore = matchCursor.getString(3);
+                MatchItem matchItem = new MatchItem(matchName, matchID, matchScore);
+                matchesList.add(matchItem);
             }
-        });
+            loadListener.loadSuccess(matchesList);
+        } else {
+            loadListener.loadFailure("Load match data failed!");
+        }
     }
 }

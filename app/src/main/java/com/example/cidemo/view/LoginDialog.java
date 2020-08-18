@@ -24,9 +24,6 @@ import com.example.cidemo.viewmodel.LoginDialogViewModel;
 public class LoginDialog extends AppCompatDialogFragment {
     private static final String TAG = "LoginDialog";
 
-    public ActivityMainBinding mActivityMainBinding;
-    private LoginDialogViewModel loginDialogViewModel;
-
     private EditText editTextUrl;
     public String url;
     private String defaultUrl;

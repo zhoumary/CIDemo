@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_height="match_parent" android:layout_width="wrap_content">
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:alignContent="stretch"
+        app:alignItems="center"
+        app:justifyContent="flex_start"
+        app:flexDirection="row"
+        app:flexWrap="wrap">
+
+        <ImageView
+            android:id="@+id/img_team"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_soccer_cup"/>
+
+        <TextView
+            android:id="@+id/txt_team"
+            android:paddingTop="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="Team Name"
+            android:textSize="15sp"
+            android:textStyle="normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onDownloadMatchDialog"
+            android:clickable="true"
+            android:focusable="true"/>
+
+    </com.google.android.flexbox.FlexboxLayout>
+
+</LinearLayout>
