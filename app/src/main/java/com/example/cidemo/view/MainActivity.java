@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                                             "2", "北体大", "1");
                                     s1Matches.add(two);
 
-                                    onOpenMatchListDialog((LinkedList<SportsMatch>) s1Matches, mContext);
+                                    onOpenMatchListDialog(s1Matches, mContext);
                                 }
                             });
                         } catch (IOException e) {

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">CI Demo</string>
-    <string name="app_title">Challenge Insights</string>
-    <string name="match_download">Download matches</string>
+    <string name="app_title">SAP Challenge Insights</string>
+    <string name="match_download">Download next matches</string>
     <string name="dialog_login">Login</string>
     <string name="download_url">URL: </string>
     <string name="download_username">User Name: </string>

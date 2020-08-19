@@ -2,6 +2,7 @@ package com.example.cidemo.other;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,13 +50,14 @@ public class MatchItemAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int position) {
         ViewHolder mViewHolder = (ViewHolder) viewHolder;
         // dataBinding绑定
-        MatchItem matchItem = matchList.get(position);
+        final MatchItem matchItem = matchList.get(position);
         mViewHolder.mItemMatchBinding.setMatchItem(matchItem);
         // 直接在adapter里设置点击事件, 跳转至比赛详情页面
         mViewHolder.mItemMatchBinding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, MainMatchActivity.class);
+                intent.putExtra("EXTRA_MATCH_ITEM", matchItem);
                 mContext.startActivity(intent);
             }
         });
