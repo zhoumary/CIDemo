@@ -8,11 +8,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.wifi.hotspot2.pps.Credential;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import com.example.cidemo.model.SportsMatch;
 import com.example.cidemo.other.BasicAuthInterceptor;
 import com.example.cidemo.other.DatabaseHelper;
 import com.example.cidemo.other.MatchItemAdapter;
+import com.example.cidemo.other.UserClient;
 import com.example.cidemo.viewmodel.MainViewModel;
 
 import org.json.JSONArray;
@@ -31,20 +33,26 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Proxy;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import okhttp3.Authenticator;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Challenge;
 import okhttp3.FormBody;
 import okhttp3.Headers;
-import okhttp3.MediaType;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okio.BufferedSink;
+import okhttp3.ResponseBody;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     public LoginDialog loginDialog;
 
+    private Retrofit retrofit;
     JSONObject lastLoginItem;
     JSONArray jsonArray;
 
@@ -128,9 +137,31 @@ public class MainActivity extends AppCompatActivity {
         AddLoginData(loginDialog.url, loginDialog.userName, loginDialog.password);
 
         // 根据URL登录对应S1系统, 首先需要获取x-csrf-token，然后再post登录数据
+        final String auth = "Basic" + Base64.encodeToString((loginDialog.userName+ ":" +loginDialog.password).getBytes(), Base64.NO_WRAP);
         client = new OkHttpClient.Builder()
-                .addInterceptor(new BasicAuthInterceptor(loginDialog.userName, loginDialog.password))
+//                .addInterceptor(new BasicAuthInterceptor(loginDialog.userName, loginDialog.password))
+                .addInterceptor(
+                        new Interceptor() {
+                            @Override
+                            public Response intercept(Chain chain) throws IOException {
+                                Request original = chain.request();
+
+                                Request.Builder requesttBuilder = original.newBuilder()
+                                        .addHeader("x-csrf-token", "fetch")
+                                        .addHeader("Authorization", auth)
+                                        .method(original.method(), original.body());
+                                Request request = requesttBuilder.build();
+                                return chain.proceed(request);
+                            }
+                        }
+                )
                 .build();
+        retrofit = new Retrofit.Builder()
+                .baseUrl(loginDialog.url + "/sap/hana/xs/formLogin/token.xsjs/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
+                .build();
+
 
         Request request = new Request.Builder()
                 .url(loginDialog.url + "/sap/hana/xs/formLogin/token.xsjs")
@@ -149,9 +180,18 @@ public class MainActivity extends AppCompatActivity {
                     String mResponse = response.body().string();
                     if (mResponse == "") {
                         String csrfToken = response.headers().get("x-csrf-token");
-                        Log.i("TOKEN" ,csrfToken);
+
+                        // 获取token
+
 
                         // 登录
+//                        Retrofit.Builder builder = new Retrofit.Builder()
+//                                .baseUrl(loginDialog.url + "/sap/hana/xs/formLogin/")
+//                                .addConverterFactory(GsonConverterFactory.create());
+//                        retrofit = builder.build();
+//                        executeLogin(loginDialog.userName, loginDialog.password, "1DA8135F961CFE4FAB1374638AA23918");
+
+
                         OkHttpClient loginClient = new OkHttpClient();
 
                         RequestBody loginBody = new FormBody.Builder()
@@ -167,8 +207,8 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
                             Response loginResp = loginClient.newCall(loginRequest).execute();
+                            int respCode = loginResp.code();
                             String respTest = loginResp.body().string();
-                            Log.d("loginResponseCode", String.valueOf(loginResp.code()));
 
                             // 首先需要获取比赛准备列表
                             // - /sap/sports/mi/appsvc/entityMatchPreparation/service/rest/entityMatchPreparation/matches/team/CE8148E75C5C76408F130E1DB1D976EE
@@ -209,6 +249,28 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
+            }
+        });
+    }
+
+    private void executeLogin(String userName, String password, String token) {
+        UserClient userClient = retrofit.create(UserClient.class);
+
+        retrofit2.Call<ResponseBody> call = userClient.login(
+                token,
+                userName,
+                password
+        );
+        call.enqueue(new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(retrofit2.Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                ResponseBody resp = response.body();
+                toastMessage("success");
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ResponseBody> call, Throwable t) {
+                toastMessage("failed");
             }
         });
     }
