@@ -2,7 +2,6 @@ package com.example.cidemo.other;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.cidemo.R;
 import com.example.cidemo.databinding.ItemMatchBinding;
 import com.example.cidemo.model.MatchItem;
-import com.example.cidemo.view.MainActivity;
 import com.example.cidemo.view.MainMatchActivity;
 
 import java.util.List;

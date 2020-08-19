@@ -76,7 +76,7 @@ public class FormationView extends View {
 
         // draw footer
         for (int i = 0; i < positions.size(); i++) {
-            Bitmap imageBitmap = ((BitmapDrawable) mResources.getDrawable(R.drawable.ic_soccer_jersey)).getBitmap();
+            Bitmap imageBitmap = ((BitmapDrawable) mResources.getDrawable(R.drawable.ic_soccer_jersey64)).getBitmap();
             canvas.drawBitmap(imageBitmap, positions.get(i).getX(), positions.get(i).getY(), mPaint);
         }
 

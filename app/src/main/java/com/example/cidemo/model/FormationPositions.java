@@ -6,10 +6,21 @@ public class FormationPositions {
     private Float x;
     private Float y;
 
-    public FormationPositions(int positionNumber, Float x, Float y) {
+    private String position;
+
+    public FormationPositions(int positionNumber, Float x, Float y, String position) {
         this.positionNumber = positionNumber;
-        this.x = x;
+        this.x = x + 380;
         this.y = y;
+        this.position = position;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
     }
 
     public int getPositionNumber() {

@@ -69,11 +69,11 @@ public class MainMatchActivity extends AppCompatActivity {
     private void setMatchFormations(MatchItem matchItem) {
         // set match positions
         ArrayList<FormationPositions> formationPositions = new ArrayList<>();
-        FormationPositions one = new FormationPositions(1, (float) 217, (float) 97);
-        FormationPositions two = new FormationPositions(2, (float) 97, (float) 211);
-        FormationPositions three = new FormationPositions(3, (float) 217, (float) 221);
-        FormationPositions four = new FormationPositions(4, (float) 336, (float) 221);
-        FormationPositions five = new FormationPositions(5, (float) 178, (float) 346);
+        FormationPositions one = new FormationPositions(1, (float) 217, (float) 97, "ST");
+        FormationPositions two = new FormationPositions(2, (float) 97, (float) 211, "ST");
+        FormationPositions three = new FormationPositions(3, (float) 217, (float) 221, "MF");
+        FormationPositions four = new FormationPositions(4, (float) 336, (float) 221, "ST");
+        FormationPositions five = new FormationPositions(5, (float) 178, (float) 346, "MF");
         formationPositions.add(one);
         formationPositions.add(two);
         formationPositions.add(three);
