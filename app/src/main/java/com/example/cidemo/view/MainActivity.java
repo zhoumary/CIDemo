@@ -1,5 +1,7 @@
 package com.example.cidemo.view;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -38,11 +40,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Authenticator;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Challenge;
+import okhttp3.Credentials;
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.Interceptor;
@@ -51,6 +55,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okhttp3.Route;
+import okhttp3.internal.http.HttpHeaders;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -137,37 +143,60 @@ public class MainActivity extends AppCompatActivity {
         AddLoginData(loginDialog.url, loginDialog.userName, loginDialog.password);
 
         // 根据URL登录对应S1系统, 首先需要获取x-csrf-token，然后再post登录数据
-        final String auth = "Basic" + Base64.encodeToString((loginDialog.userName+ ":" +loginDialog.password).getBytes(), Base64.NO_WRAP);
+//        final String auth = "Basic" + Base64.encodeToString((loginDialog.userName+ ":" +loginDialog.password).getBytes(), Base64.NO_WRAP);
         client = new OkHttpClient.Builder()
+//                .connectTimeout(10000, TimeUnit.MILLISECONDS)
+//                .readTimeout(10000, TimeUnit.MILLISECONDS)
+//                .authenticator(new Authenticator() {
+//                    @Nullable
+//                    @Override
+//                    public Request authenticate(@NonNull Route route, @NonNull Response response) {
+//                        if (response.request().header(HttpHeaders.AUTHORIZATION) != null)
+//                            return null;  //if you've tried to authorize and failed, give up
+//
+//                        String credential = Credentials.basic(loginDialog.userName, loginDialog.password);
+//                        return response.request().newBuilder().header(HttpHeaders.AUTHORIZATION, credential).build();
+//                    }
+//                })
+//                .authenticator(new Authenticator() {
+//                    @Override
+//                    public Request authenticate(Route route, Response response) {
+//                        String credential = Credentials.basic(loginDialog.userName, loginDialog.password);
+//                        return response.request().newBuilder()
+//                                .header("Authorization", credential)
+//                                .build();
+//                    }
+//                })
 //                .addInterceptor(new BasicAuthInterceptor(loginDialog.userName, loginDialog.password))
-                .addInterceptor(
-                        new Interceptor() {
-                            @Override
-                            public Response intercept(Chain chain) throws IOException {
-                                Request original = chain.request();
-
-                                Request.Builder requesttBuilder = original.newBuilder()
-                                        .addHeader("x-csrf-token", "fetch")
-                                        .addHeader("Authorization", auth)
-                                        .method(original.method(), original.body());
-                                Request request = requesttBuilder.build();
-                                return chain.proceed(request);
-                            }
-                        }
-                )
+//                .addInterceptor(
+//                        new Interceptor() {
+//                            @Override
+//                            public Response intercept(Chain chain) throws IOException {
+//                                Request original = chain.request();
+//
+//                                Request.Builder requesttBuilder = original.newBuilder()
+//                                        .addHeader("x-csrf-token", "fetch")
+//                                        .addHeader("Authorization", auth)
+//                                        .method(original.method(), original.body());
+//                                Request request = requesttBuilder.build();
+//                                return chain.proceed(request);
+//                            }
+//                        }
+//                )
                 .build();
-        retrofit = new Retrofit.Builder()
-                .baseUrl(loginDialog.url + "/sap/hana/xs/formLogin/token.xsjs/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(client)
-                .build();
+//        retrofit = new Retrofit.Builder()
+//                .baseUrl(loginDialog.url + "/sap/hana/xs/formLogin/token.xsjs/")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .client(client)
+//                .build();
 
-
+//        client = new OkHttpClient();
+        final String credential = Credentials.basic(loginDialog.userName, loginDialog.password);
         Request request = new Request.Builder()
                 .url(loginDialog.url + "/sap/hana/xs/formLogin/token.xsjs")
-                .addHeader("x-csrf-token", "fetch")
+                .header("Authorization", credential)
+                .addHeader("X-CSRF-Token", "fetch")
                 .build();
-
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -179,12 +208,7 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     String mResponse = response.body().string();
                     if (mResponse == "") {
-                        String csrfToken = response.headers().get("x-csrf-token");
-
-                        // 获取token
-
-
-                        // 登录
+                        String csrfToken = response.headers().get("x-csrf-token");                        // 登录
 //                        Retrofit.Builder builder = new Retrofit.Builder()
 //                                .baseUrl(loginDialog.url + "/sap/hana/xs/formLogin/")
 //                                .addConverterFactory(GsonConverterFactory.create());
@@ -193,6 +217,19 @@ public class MainActivity extends AppCompatActivity {
 
 
                         OkHttpClient loginClient = new OkHttpClient();
+//                                .authenticator(new Authenticator() {
+//                                    @Nullable
+//                                    @Override
+//                                    public Request authenticate(Route route, Response response) throws IOException {
+//                                        if (response.request().header("Authorization") != null)
+//                                            return null;  //if you've tried to authorize and failed, give up
+//
+//                                        String credential = Credentials.basic("username", "pass");
+//                                        return response.request().newBuilder().header("Authorization", credential).build();
+//                                    }
+//                                })
+////                                .addInterceptor(new BasicAuthInterceptor(loginDialog.userName, loginDialog.password))
+//                                .build();
 
                         RequestBody loginBody = new FormBody.Builder()
                                 .add("xs-username", loginDialog.userName)
@@ -201,24 +238,38 @@ public class MainActivity extends AppCompatActivity {
 
                         Request loginRequest = new Request.Builder()
                                 .url(loginDialog.url + "/sap/hana/xs/formLogin/login.xscfunc")
-                                .addHeader("x-csrf-token", csrfToken)
+                                .header("Authorization", credential)
+                                .addHeader("X-CSRF-Token", csrfToken)
                                 .post(loginBody)
                                 .build();
+
+                        loginClient.newCall(loginRequest).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                int code = response.code();
+                                String resp = response.body().toString();
+                                Headers headers = response.headers();
+                            }
+                        });
 
                         try {
                             Response loginResp = loginClient.newCall(loginRequest).execute();
                             int respCode = loginResp.code();
                             String respTest = loginResp.body().string();
 
-                            // 首先需要获取比赛准备列表
-                            // - /sap/sports/mi/appsvc/entityMatchPreparation/service/rest/entityMatchPreparation/matches/team/CE8148E75C5C76408F130E1DB1D976EE
-                            OkHttpClient matchClient = new OkHttpClient.Builder()
-                                    .addInterceptor(new BasicAuthInterceptor(loginDialog.userName, loginDialog.password))
+                            // 获取API-TOKEN
+                            Request apiTokenRequest = new Request.Builder()
+                                    .url(loginDialog.url + "/sap/sports/fnd/db/services/public/xs/token.xsjs")
+                                    .header("Authorization", credential)
+                                    .addHeader("X-CSRF-Token", "Fetch")
                                     .build();
-                            Request matchRequest = new Request.Builder()
-                                    .url(loginDialog.url + "/sap/sports/mi/appsvc/entityMatchPreparation/service/rest/entityMatchPreparation/matches/team/CE8148E75C5C76408F130E1DB1D976EE")
-                                    .build();
-                            matchClient.newCall(matchRequest).enqueue(new Callback() {
+                            client = new OkHttpClient();
+                            client.newCall(apiTokenRequest).enqueue(new Callback() {
                                 @Override
                                 public void onFailure(Call call, IOException e) {
                                     e.printStackTrace();
@@ -226,22 +277,43 @@ public class MainActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onResponse(Call call, Response response) throws IOException {
-                                    int respCode = response.code();
-                                    if (response.isSuccessful()) {
-                                        String matches = response.body().string();
-                                        Headers headers = response.headers();
-                                    }
+                                    int code = response.code();
+                                    String resp = response.body().string();
+                                    String apiToken = response.headers().get("x-csrf-token");
 
-                                    // 如果登录成功则跳转至比赛列表加载页面，仍然是一个Dialog。
-                                    LinkedList<SportsMatch> s1Matches = new LinkedList<SportsMatch>();
-                                    SportsMatch one = new SportsMatch("10BAD440EA84A34CB1D8D911BD138D9A", "北体大",
-                                            "1", "U19 | 2002级梯队", "4");
-                                    s1Matches.add(one);
-                                    SportsMatch two = new SportsMatch("822BDCE0B6B0AA488B15D3385D199EC1", "陕西大秦之水",
-                                            "2", "北体大", "1");
-                                    s1Matches.add(two);
+                                    // 首先需要获取比赛准备列表
+                                    // - /sap/sports/mi/appsvc/entityMatchPreparation/service/rest/entityMatchPreparation/matches/team/CE8148E75C5C76408F130E1DB1D976EE
+                                    OkHttpClient matchClient = new OkHttpClient();
+                                    Request matchRequest = new Request.Builder()
+                                            .addHeader("X-CSRF-Token", apiToken)
+                                            .url(loginDialog.url + "/sap/sports/mi/appsvc/entityMatchPreparation/service/rest/entityMatchPreparation/matches/team/CE8148E75C5C76408F130E1DB1D976EE")
+                                            .build();
+                                    matchClient.newCall(matchRequest).enqueue(new Callback() {
+                                        @Override
+                                        public void onFailure(Call call, IOException e) {
+                                            e.printStackTrace();
+                                        }
 
-                                    onOpenMatchListDialog(s1Matches, mContext);
+                                        @Override
+                                        public void onResponse(Call call, Response response) throws IOException {
+                                            int respCode = response.code();
+                                            if (response.isSuccessful()) {
+                                                String matches = response.body().string();
+                                                Headers headers = response.headers();
+                                            }
+
+                                            // 如果登录成功则跳转至比赛列表加载页面，仍然是一个Dialog。
+                                            LinkedList<SportsMatch> s1Matches = new LinkedList<SportsMatch>();
+                                            SportsMatch one = new SportsMatch("10BAD440EA84A34CB1D8D911BD138D9A", "北体大",
+                                                    "1", "U19 | 2002级梯队", "4");
+                                            s1Matches.add(one);
+                                            SportsMatch two = new SportsMatch("822BDCE0B6B0AA488B15D3385D199EC1", "陕西大秦之水",
+                                                    "2", "北体大", "1");
+                                            s1Matches.add(two);
+
+                                            onOpenMatchListDialog(s1Matches, mContext);
+                                        }
+                                    });
                                 }
                             });
                         } catch (IOException e) {
